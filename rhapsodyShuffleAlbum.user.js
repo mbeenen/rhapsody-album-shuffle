@@ -1,25 +1,17 @@
+// ==UserScript==
 /* Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php */
 // @name           rhapsodyShuffleAlbum
 // @namespace      mbeenen
 // @description    Overrides the standard shuffle behavior of the rhapsody web player to shuffle albums.
 //   Songs within an album will play in track order. Also eliminates the limit of 800 songs for the queue.
-
-function main() {
-    var usWindow;
-
-    // Grab the global window object
-    if(window.navigator.vendor.match(/Google/)) {
-        var div = document.createElement("div");
-        div.setAttribute("onclick", "return window;");
-        usWindow = div.onclick();
-    };
-
+// ==/UserScript==
+var actualCode = '(' + function() {
     // Wipe out the limit on queue length, it's silly
-    usWindow.queueLimit = undefined;
+    window.queueLimit = undefined;
 
     // Override the shuffle function of the player
-    var oldShuffle = usWindow.Queue.shuffle;
-    usWindow.Queue.shuffle = function() {
+    var oldShuffle = window.Queue.shuffle;
+    window.Queue.shuffle = function() {
         var albumsArray = [];
         var finalOrder = [];
         var currentAlbumId = -1;
@@ -39,7 +31,7 @@ function main() {
         // perform the shuffle
         for (i = albumsArray.length-1; i > 0; i--) {
             var randomnumber = Math.floor(Math.random()*(i));
-            tmp = albumsArray[i];
+            var tmp = albumsArray[i];
             albumsArray[i] = albumsArray[randomnumber];
             albumsArray[randomnumber] = tmp;
         }
@@ -65,5 +57,8 @@ function main() {
         }
         //console.log(this.items);
     };
-    
-}();
+} + ')();';
+var script = document.createElement('script');
+script.textContent = actualCode;
+(document.head||document.documentElement).appendChild(script);
+script.parentNode.removeChild(script);
